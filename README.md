@@ -18,9 +18,14 @@ A microservice for optical character recognition (OCR) powered by PaddleOCR.
 
 ### Usage
 
-Send an image to the OCR endpoint:
+Build Docker Image:
 
 ```bash
-curl -X POST http://localhost:8000/ocr \
-    -F "image=@path/to/image.png"
+docker build --platform linux/amd64 -t ocr-amd . --load
+```
+
+### Running Locally
+
+```bash
+uv run uvicorn src.app:app --reload
 ```

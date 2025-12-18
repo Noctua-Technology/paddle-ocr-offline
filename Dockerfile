@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y \
 COPY --from=builder --chown=app:app /app /app
 
 ENV PATH="/app/.venv/bin:$PATH"
-ENV PYTHONPATH=/app
+ENV PYTHONPATH="/app/src"
 ENV FLAGS_enable_pir_api=0
 ENV FLAGS_use_mkldnn=0
 
