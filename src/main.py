@@ -1,5 +1,4 @@
 import os
-import json
 from paddleocr import PaddleOCR
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -52,7 +51,7 @@ class PaddleOCRService:
         }
 
     def _get_or_load_model(self, lang: str):
-        """Loads the model into memory only if it hasn't been loaded yet."""
+        """Loads the model into memory only if it hasn't been loaded yet"""
         if lang not in self.models:
             if lang not in self.model_registry:
                 print(f"Language {lang} not found, falling back to English")
@@ -77,30 +76,31 @@ class PaddleOCRService:
         return self.models[lang]
 
     def run_ocr(self, image_path: str, lang: str = 'ar'):
-        """Executes OCR and saves the result to a JSON file."""
+        """Executes OCR and outputs the result"""
         ocr_engine = self._get_or_load_model(lang)
         
         result = ocr_engine.predict(input=image_path)
 
+        all_text = []
+        text_boxes = []
+
         for res in result:
-            res.save_to_json(OUTPUT_DIR)
+            texts = res.get('rec_texts', [])
+            boxes = res.get('dt_polys', [])
+
+            for text, box in zip(texts, boxes):
+                all_text.append(text)
+                
+                clean_box = box.tolist() if hasattr(box, 'tolist') else box
+                
+                text_boxes.append({
+                    "text": text,
+                    "box": clean_box
+                })
         
-        filename = os.path.basename(image_path).split('.')[0]
-        return os.path.join(OUTPUT_DIR, f"{filename}_res.json")
-
-    def stringify_ocr_content_from_file(self, json_path: str):
-        """Extracts text from the generated JSON and returns a single string."""
-        if not os.path.exists(json_path):
-            return ""
-
-        try:
-            with open(json_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            
-            recognized_texts = data.get("rec_texts", [])
-            return " ".join(recognized_texts)
-        except Exception as e:
-            print(f"Error reading JSON: {e}")
-            return ""
+        return {
+            "full_text": " ".join(all_text),
+            "text_boxes": text_boxes
+        }
 
 ocr_service = PaddleOCRService()

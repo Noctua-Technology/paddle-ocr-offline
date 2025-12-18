@@ -29,13 +29,13 @@ async def predict_text(
         with open(temp_file_path, "wb") as f:
             f.write(content)
 
-        json_path = ocr_service.run_ocr(temp_file_path, lang=lang)
-        final_text = ocr_service.stringify_ocr_content_from_file(json_path)
+        ocr_result = ocr_service.run_ocr(temp_file_path, lang=lang)
 
         return {
             "filename": file.filename,
             "language": lang,
-            "extracted_text": final_text
+            "extracted_text": ocr_result["full_text"],
+            "text_boxes": ocr_result["text_boxes"],
         }
 
     except Exception as e:
