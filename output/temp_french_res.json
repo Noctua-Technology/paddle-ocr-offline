@@ -1,0 +1,310 @@
+{
+    "input_path": "/Users/molly/Documents/Repos/Paddle-Docker-Offline-New/src/temp_french.jpg",
+    "page_index": null,
+    "model_settings": {
+        "use_doc_preprocessor": true,
+        "use_textline_orientation": true
+    },
+    "doc_preprocessor_res": {
+        "input_path": null,
+        "page_index": null,
+        "model_settings": {
+            "use_doc_orientation_classify": true,
+            "use_doc_unwarping": true
+        },
+        "angle": 0
+    },
+    "dt_polys": [
+        [
+            [
+                46,
+                109
+            ],
+            [
+                179,
+                109
+            ],
+            [
+                179,
+                128
+            ],
+            [
+                46,
+                128
+            ]
+        ],
+        [
+            [
+                45,
+                155
+            ],
+            [
+                395,
+                159
+            ],
+            [
+                395,
+                177
+            ],
+            [
+                45,
+                173
+            ]
+        ],
+        [
+            [
+                45,
+                178
+            ],
+            [
+                411,
+                182
+            ],
+            [
+                411,
+                202
+            ],
+            [
+                45,
+                198
+            ]
+        ],
+        [
+            [
+                45,
+                202
+            ],
+            [
+                380,
+                208
+            ],
+            [
+                380,
+                226
+            ],
+            [
+                45,
+                219
+            ]
+        ],
+        [
+            [
+                44,
+                224
+            ],
+            [
+                394,
+                231
+            ],
+            [
+                394,
+                251
+            ],
+            [
+                44,
+                244
+            ]
+        ],
+        [
+            [
+                44,
+                249
+            ],
+            [
+                285,
+                255
+            ],
+            [
+                284,
+                272
+            ],
+            [
+                44,
+                265
+            ]
+        ]
+    ],
+    "text_det_params": {
+        "limit_side_len": 64,
+        "limit_type": "min",
+        "thresh": 0.3,
+        "max_side_limit": 4000,
+        "box_thresh": 0.6,
+        "unclip_ratio": 1.5
+    },
+    "text_type": "general",
+    "textline_orientation_angles": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "text_rec_score_thresh": 0.0,
+    "return_word_box": false,
+    "rec_texts": [
+        "Monsieur Durand,",
+        "Je vous écris afin de discuter de l'opportunité de",
+        "collaborer sur un projet de marketing digital. Ayant",
+        "suivi vos réalisations dans ce domaine, je suis",
+        "convaincu que ma proposition pourrait répondre",
+        "aux besoins de votre entreprise..."
+    ],
+    "rec_scores": [
+        0.9789974689483643,
+        0.9831303954124451,
+        0.9929660558700562,
+        0.9993031024932861,
+        0.9952920079231262,
+        0.9751582145690918
+    ],
+    "rec_polys": [
+        [
+            [
+                46,
+                109
+            ],
+            [
+                179,
+                109
+            ],
+            [
+                179,
+                128
+            ],
+            [
+                46,
+                128
+            ]
+        ],
+        [
+            [
+                45,
+                155
+            ],
+            [
+                395,
+                159
+            ],
+            [
+                395,
+                177
+            ],
+            [
+                45,
+                173
+            ]
+        ],
+        [
+            [
+                45,
+                178
+            ],
+            [
+                411,
+                182
+            ],
+            [
+                411,
+                202
+            ],
+            [
+                45,
+                198
+            ]
+        ],
+        [
+            [
+                45,
+                202
+            ],
+            [
+                380,
+                208
+            ],
+            [
+                380,
+                226
+            ],
+            [
+                45,
+                219
+            ]
+        ],
+        [
+            [
+                44,
+                224
+            ],
+            [
+                394,
+                231
+            ],
+            [
+                394,
+                251
+            ],
+            [
+                44,
+                244
+            ]
+        ],
+        [
+            [
+                44,
+                249
+            ],
+            [
+                285,
+                255
+            ],
+            [
+                284,
+                272
+            ],
+            [
+                44,
+                265
+            ]
+        ]
+    ],
+    "rec_boxes": [
+        [
+            46,
+            109,
+            179,
+            128
+        ],
+        [
+            45,
+            155,
+            395,
+            177
+        ],
+        [
+            45,
+            178,
+            411,
+            202
+        ],
+        [
+            45,
+            202,
+            380,
+            226
+        ],
+        [
+            44,
+            224,
+            394,
+            251
+        ],
+        [
+            44,
+            249,
+            285,
+            272
+        ]
+    ]
+}

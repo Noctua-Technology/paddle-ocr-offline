@@ -1,0 +1,19 @@
+[project]
+name = "paddle-docker-offline"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "~=3.10"
+dependencies = [
+    "paddleocr>=3.3.2",
+    "paddlepaddle>=3.2.2",
+    "paddlex>=3.3.11",
+    "pybind11>=3.0.1",
+    "fastapi[standard]",
+    "uvicorn>=0.38.0",
+]
+[tool.uv]
+required-environments = [
+		"sys_platform == 'darwin' and platform_machine == 'arm64'",
+		"sys_platform == 'linux' and platform_machine == 'aarch64'"
+]
