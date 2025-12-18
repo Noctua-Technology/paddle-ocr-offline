@@ -5,8 +5,6 @@ from main import ocr_service
 
 app = FastAPI(title="Paddle OCR")
 
-os.makedirs("output", exist_ok=True)
-
 SupportedLangs = Literal["ar", "en", "fr", "de", "ko", "zh", "ja", "es", "hi"]
 
 @app.get("/")
@@ -16,7 +14,7 @@ async def root():
 @app.post("/ocr/predict")
 async def predict_text(
     file: UploadFile = File(...),
-    lang: SupportedLangs = Query("ar")
+    lang: SupportedLangs = Query("en")
 ):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")

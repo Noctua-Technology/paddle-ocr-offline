@@ -14,7 +14,6 @@ A microservice for optical character recognition (OCR) powered by PaddleOCR.
 ### Prerequisites
 
 - Docker
-- Docker Compose
 
 ### Usage
 
