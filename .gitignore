@@ -1,0 +1,5 @@
+# Ignore editor settings folders
+.vscode/
+
+# Ignore pychache directories
+src/__pycache__/
