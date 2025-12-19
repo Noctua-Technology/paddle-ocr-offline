@@ -18,6 +18,8 @@ COPY . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv run src/generate_models.py
 
+RUN find /app/src/local_models/ -name "inference.json" -exec bash -c 'mv "$1" "${1%.json}.pdmodel"' _ {} \;
+
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 
