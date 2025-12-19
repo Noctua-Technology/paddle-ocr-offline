@@ -29,28 +29,31 @@ class PaddleOCRService:
         }
 
     def _get_or_load_model(self, lang: str):
-        """Loads the model into memory without recursion."""
+        """Loads the model into memory with path validation."""
         if lang not in self.models:
-            # defaults to en if lang not found
-            paddle_code = self.model_registry.get(lang)
+            paddle_code = self.model_registry.get(lang, "en")
             
-            if not paddle_code:
-                paddle_code = "en"
-            
-            rec_path = os.path.join(MODELS_ROOT, paddle_code, "rec")
-            det_path = os.path.join(MODELS_ROOT, paddle_code, "det")
+            lang_folder = os.path.join(MODELS_ROOT, paddle_code)
+            rec_path = os.path.join(lang_folder, "rec")
+            det_path = os.path.join(lang_folder, "det")
 
-            if not os.path.exists(rec_path):
-                raise FileNotFoundError(f"Model path missing at {rec_path}. ")
-
+            # Find the correct rec_model path
+            final_rec_path = rec_path if os.path.exists(rec_path) else lang_folder
             
+            model_file_check = os.path.join(final_rec_path, "inference.pdiparams")
+            
+            if not os.path.exists(model_file_check):
+                raise FileNotFoundError(
+                    f"OCR Model not found. Checked: {rec_path} and {lang_folder}. "
+                    f"Ensure 'inference.pdiparams' exists in one of these locations."
+                )
+
             self.models[lang] = PaddleOCR(
-                det_model_dir=det_path if os.path.exists(det_path) else None,
-                rec_model_dir=rec_path,
+                det_model_dir=det_path if os.path.exists(det_path) else lang_folder,
+                rec_model_dir=final_rec_path,
                 use_angle_cls=False,
                 lang=paddle_code,
-                use_gpu=False,
-                show_log=False
+                device='cpu'
             )
         return self.models[lang]
 
