@@ -1,7 +1,6 @@
 FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim AS builder
 
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
-
 ENV UV_PYTHON_DOWNLOADS=0
 
 WORKDIR /app
@@ -11,6 +10,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-install-project --no-dev
 
 COPY . /app
+
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv run src/generate_models.py
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
@@ -30,12 +33,16 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /app
+RUN mkdir -p /app/output && chown -R app:app /app
+
 COPY --from=builder --chown=app:app /app /app
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/src"
 ENV FLAGS_enable_pir_api=0
 ENV FLAGS_use_mkldnn=0
+ENV DISABLE_MODEL_SOURCE_CHECK=True 
 
 USER app
 
