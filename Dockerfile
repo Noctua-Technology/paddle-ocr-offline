@@ -1,16 +1,19 @@
 FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim AS builder
 
-ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
-ENV UV_PYTHON_DOWNLOADS=0
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0 DISABLE_MODEL_SOURCE_CHECK=True
 
 WORKDIR /app
-COPY pyproject.toml uv.lock ./
 
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-install-project --no-dev
 
 COPY . /app
-
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv run src/generate_models.py
@@ -42,8 +45,8 @@ ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/src"
 ENV FLAGS_enable_pir_api=0
 ENV FLAGS_use_mkldnn=0
-ENV DISABLE_MODEL_SOURCE_CHECK=True 
+ENV DISABLE_MODEL_SOURCE_CHECK=True
 
 USER app
 
-CMD ["/app/.venv/bin/fastapi", "run", "/app/src/app.py", "--port", "80"]
+CMD ["fastapi", "run", "src/app.py", "--port", "80"]
