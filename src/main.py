@@ -9,7 +9,35 @@ class PaddleOCRService:
     def __init__(self):
         self.models = {}
 
+        # Base path for models (configurable via env var for Cloud Run)
+        self.models_base = os.environ.get("MODELS_BASE", "/app/src/local_models")
+
+        # Detection model (shared across languages)
+        self.det_model = "PP-OCRv5_server_det"
+
+        # Paddle map to names of rec files/modes
         self.model_registry = {
+            "ar": "arabic_PP-OCRv5_mobile_rec",
+            "en": "en_PP-OCRv5_mobile_rec",
+            "fa": "arabic_PP-OCRv5_mobile_rec",
+            "fr": "latin_PP-OCRv5_mobile_rec",
+            "de": "latin_PP-OCRv5_mobile_rec",
+            "hi": "devanagari_PP-OCRv3_mobile_rec",
+            "id": "latin_PP-OCRv5_mobile_rec",
+            "ja": "japan_PP-OCRv3_mobile_rec",
+            "ko": "korean_PP-OCRv5_mobile_rec",
+            "zh": "PP-OCRv5_mobile_rec",
+            "pt": "latin_PP-OCRv5_mobile_rec",
+            "ru": "cyrillic_PP-OCRv3_mobile_rec",
+            "es": "latin_PP-OCRv5_mobile_rec",
+            "ur": "arabic_PP-OCRv5_mobile_rec",
+            "vi": "latin_PP-OCRv5_mobile_rec",
+            "so": "en_PP-OCRv5_mobile_rec",
+            "tl": "en_PP-OCRv5_mobile_rec",
+        }
+
+        # Paddle lang code to PaddleOCR lang code
+        self.paddle_lang_map = {
             "ar": "ar",
             "en": "en",
             "fa": "fa",
@@ -32,15 +60,16 @@ class PaddleOCRService:
     def _get_or_load_model(self, lang: str):
         """Loads the model into memory with path validation."""
         if lang not in self.models:
-            paddle_code = self.model_registry.get(lang, "en")
+            paddle_code = self.paddle_lang_map.get(lang, "en")
+            rec_model = self.model_registry.get(lang, "en_PP-OCRv5_mobile_rec")
 
             lang_folder = os.path.join(MODELS_ROOT, paddle_code)
             rec_path = os.path.join(lang_folder, "rec")
             det_path = os.path.join(lang_folder, "det")
 
             self.models[lang] = PaddleOCR(
-                det_model_dir="/app/src/local_models/PP-OCRv5_server_det",
-                rec_model_dir="/app/src/local_models/en_PP-OCRv5_mobile_rec",
+                det_model_dir=f"{self.models_base}/{self.det_model}",
+                rec_model_dir=f"{self.models_base}/{rec_model}",
                 use_doc_orientation_classify=False,
                 use_doc_unwarping=False,
                 use_textline_orientation=False,

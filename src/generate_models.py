@@ -6,6 +6,7 @@ from io import BytesIO
 
 # Model list https://paddlepaddle.github.io/PaddleX/3.3/en/support_list/models_list.html
 BASE_V5 = "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/"
+BASE_V3 = BASE_V5  # Same base for v3 models
 MODEL_MAP = {
     "OCRv5": (
         "PP-OCRv5_server_det",
@@ -18,6 +19,26 @@ MODEL_MAP = {
     "Arabic": (
         "arabic_PP-OCRv5_mobile_rec",
         f"{BASE_V5}/arabic_PP-OCRv5_mobile_rec_infer.tar",
+    ),
+    "Korean": (
+        "korean_PP-OCRv5_mobile_rec",
+        f"{BASE_V5}/korean_PP-OCRv5_mobile_rec_infer.tar",
+    ),
+    "Latin": (
+        "latin_PP-OCRv5_mobile_rec",
+        f"{BASE_V5}/latin_PP-OCRv5_mobile_rec_infer.tar",
+    ),
+    "Hindu": (
+        "devanagari_PP-OCRv3_mobile_rec",
+        f"{BASE_V3}/devanagari_PP-OCRv3_mobile_rec_infer.tar",
+    ),
+    "Chinese": (
+        "PP-OCRv5_mobile_rec",
+        f"{BASE_V5}/PP-OCRv5_mobile_rec_infer.tar",
+    ),
+    "Japan": (
+        "japan_PP-OCRv3_mobile_rec",
+        f"{BASE_V3}/japan_PP-OCRv3_mobile_rec_infer.tar",
     ),
 }
 
