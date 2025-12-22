@@ -4,17 +4,24 @@ import tarfile
 import shutil
 from io import BytesIO
 
-# --- Configuration ---
-
+# Model list https://paddlepaddle.github.io/PaddleX/3.3/en/support_list/models_list.html
 BASE_V5 = "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/"
 MODEL_MAP = {
+    "OCRv5": (
+        "PP-OCRv5_server_det",
+        f"{BASE_V5}/PP-OCRv5_server_det_infer.tar",
+    ),
     "English": (
         "en_PP-OCRv5_mobile_rec",
         f"{BASE_V5}/en_PP-OCRv5_mobile_rec_infer.tar",
     ),
+    "Arabic": (
+        "arabic_PP-OCRv5_mobile_rec",
+        f"{BASE_V5}/arabic_PP-OCRv5_mobile_rec_infer.tar",
+    ),
 }
 
-DEST_DIR = "/app/local_models"
+DEST_DIR = "/app/src/local_models"
 
 
 def download_and_extract(name, model_name, url):
