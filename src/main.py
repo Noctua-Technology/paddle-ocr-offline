@@ -43,14 +43,14 @@ class PaddleOCRService:
             model_file_check = os.path.join(final_rec_path, "inference.pdiparams")
             
             if not os.path.exists(model_file_check):
-                raise FileNotFoundError(
-                    f"OCR Model not found. Checked: {rec_path} and {lang_folder}. "
-                    f"Ensure 'inference.pdiparams' exists in one of these locations."
+                raise filenotfounderror(
+                    f"ocr model not found. checked: {rec_path} and {lang_folder}. "
+                    f"ensure 'inference.pdiparams' exists in one of these locations."
                 )
 
             self.models[lang] = PaddleOCR(
-                det_model_dir=det_path if os.path.exists(det_path) else lang_folder,
-                rec_model_dir=final_rec_path,
+                det_model_dir="app/local_models/PP-OCRv5_server_det",
+                rec_model_dir="app/local_models/en_PP-OCRv5_mobile_rec",
                 use_angle_cls=False,
                 lang=paddle_code,
                 device='cpu'

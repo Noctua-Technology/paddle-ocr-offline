@@ -42,3 +42,5 @@ async def predict_text(
     finally:
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
+
+

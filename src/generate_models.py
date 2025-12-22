@@ -1,48 +1,62 @@
 import os
+import requests
+import tarfile
 import shutil
-from paddleocr import PaddleOCR
+from io import BytesIO
 
-LANG_MAP = {
-    "Arabic": "ar",
-    "English": "en",
-    "Farsi": "fa",
-    "French": "fr",
-    "German": "german",
-    "Hindi": "hi",
-    "Indonesian": "id",
-    "Japanese": "japan",
-    "Korean": "korean",
-    "Mandarin Chinese": "ch",
-    "Portuguese": "pt",
-    "Russian": "ru",
-    "Somali": "en", # PaddleOCR does not have a model for Somali
-    "Spanish": "es",
-    "Tagalog": "en", # PaddleOCR does not have a model for Tagalog
-    "Urdu": "ur",
-    "Vietnamese": "vi"
+# --- Configuration ---
+
+BASE_V5 = "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/"
+MODEL_MAP = {
+    "English": (
+        "en_PP-OCRv5_mobile_rec",
+        f"{BASE_V5}/en_PP-OCRv5_mobile_rec_infer.tar",
+    ),
 }
 
-def download_models():
-    for name, code in LANG_MAP.items():
-        
-        try:
-            ocr = PaddleOCR(lang=code, use_gpu=False)
-            
-            try:
-                src_path = ocr.paddlex_pipeline.text_rec_model.model_dir
-            except AttributeError:
-                src_path = ocr.page_pipeline.text_rec.model_dir
+DEST_DIR = "/app/local_models"
 
-            dest = f"./local_models/{code}/rec"
-            
-            if os.path.exists(src_path):
-                shutil.copytree(src_path, dest, dirs_exist_ok=True)
-                print(f"Success: {name} saved to {dest}")
+
+def download_and_extract(name, model_name, url):
+    print(f"[{name}] Downloading {model_name}...")
+
+    final_path = os.path.join(DEST_DIR, model_name)
+
+    # Check if we already have it
+    if os.path.exists(final_path):
+        print(f"Already exists: {final_path}")
+        return
+
+    try:
+        response = requests.get(url, stream=True)
+        if response.status_code != 200:
+            print(f"Error: URL returned {response.status_code}")
+            return
+
+        with tarfile.open(fileobj=BytesIO(response.content), mode="r:tar") as tar:
+            tar.extractall(path=DEST_DIR)
+
+            # Rename it to "{model_name}" to keep paths clean
+            extracted_name = f"{model_name}_infer"
+            extracted_path = os.path.join(DEST_DIR, extracted_name)
+
+            if os.path.exists(extracted_path) and extracted_path != final_path:
+                shutil.move(extracted_path, final_path)
+                print(f"Saved to {final_path}")
+            elif os.path.exists(final_path):
+                print(f"Saved to {final_path}")
             else:
-                print(f"Error: Could not find source path for {name}")
-                
-        except Exception as e:
-            print(f"Skipping {name}: {e}")
+                print(
+                    f"Warning: Folder unpacked but name check failed. Check {DEST_DIR}"
+                )
+
+    except Exception as e:
+        print(f"Exception: {e}")
+
 
 if __name__ == "__main__":
-    download_models()
+    if not os.path.exists(DEST_DIR):
+        os.makedirs(DEST_DIR)
+
+    for lang, (model, url) in MODEL_MAP.items():
+        download_and_extract(lang, model, url)
