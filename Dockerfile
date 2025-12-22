@@ -5,7 +5,8 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0 DISABLE_MODEL_
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
-    libgl1 \
+    libgomp1 \
+    libgl1-mesa-glx \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -17,8 +18,6 @@ COPY . /app
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv run src/generate_models.py
-
-RUN find /app/src/local_models/ -name "inference.json" -exec bash -c 'mv "$1" "${1%.json}.pdmodel"' _ {} \;
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
