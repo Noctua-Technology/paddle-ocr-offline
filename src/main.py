@@ -1,7 +1,5 @@
 import os
 from paddleocr import PaddleOCR
-from fastapi import File
-
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODELS_ROOT = os.path.join(BASE_DIR, "local_models")
@@ -87,12 +85,14 @@ class PaddleOCRService:
             texts = res.get("rec_texts", [])
             boxes = res.get("dt_polys", [])
 
+            print(res)
+
             for text, box in zip(texts, boxes):
                 all_text.append(text)
 
                 clean_box = box.tolist() if hasattr(box, "tolist") else box
 
-                text_boxes.append({"text": text, "box": clean_box})
+                text_boxes.append({"text": text, "box": clean_box })
 
         return {"full_text": " ".join(all_text), "text_boxes": text_boxes}
 

@@ -41,14 +41,7 @@ async def predict_text(
         image = Image.open(BytesIO(image_bytes))
         img_array = np.array(image)
 
-        ocr_result = ocr_service.run_ocr(img_array, lang=lang)
-
-        return {
-            "filename": file.filename,
-            "language": lang,
-            "extracted_text": ocr_result["full_text"],
-            "text_boxes": ocr_result["text_boxes"],
-        }
+        return ocr_service.run_ocr(img_array, lang=lang)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"OCR Error: {str(e)}")
