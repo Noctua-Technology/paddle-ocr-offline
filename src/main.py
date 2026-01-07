@@ -1,16 +1,17 @@
 import os
 from paddleocr import PaddleOCR
+from fastapi import File
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODELS_ROOT = os.path.join(BASE_DIR, "local_models")
-
 
 class PaddleOCRService:
     def __init__(self):
         self.models = {}
 
         # Base path for models (configurable via env var for Cloud Run)
-        self.models_base = os.environ.get("MODELS_BASE", "/app/src/local_models")
+        self.models_base = os.environ.get("MODELS_BASE", "./src/local_models")
 
         # Detection model (shared across languages)
         self.det_model = "PP-OCRv5_server_det"
@@ -63,10 +64,6 @@ class PaddleOCRService:
             paddle_code = self.paddle_lang_map.get(lang, "en")
             rec_model = self.model_registry.get(lang, "en_PP-OCRv5_mobile_rec")
 
-            lang_folder = os.path.join(MODELS_ROOT, paddle_code)
-            rec_path = os.path.join(lang_folder, "rec")
-            det_path = os.path.join(lang_folder, "det")
-
             self.models[lang] = PaddleOCR(
                 det_model_dir=f"{self.models_base}/{self.det_model}",
                 rec_model_dir=f"{self.models_base}/{rec_model}",
@@ -74,13 +71,14 @@ class PaddleOCRService:
                 use_doc_unwarping=False,
                 use_textline_orientation=False,
                 lang=paddle_code,
-                )
+            )
+            
         return self.models[lang]
 
-    def run_ocr(self, image_path: str, lang: str = "en"):
+    def run_ocr(self, file, lang: str = "en"):
         """Executes OCR and returns structured JSON-ready data"""
         ocr_engine = self._get_or_load_model(lang)
-        result = ocr_engine.predict(input=image_path)
+        result = ocr_engine.predict(input=file)
 
         all_text = []
         text_boxes = []

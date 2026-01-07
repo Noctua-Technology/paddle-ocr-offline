@@ -1,5 +1,7 @@
 # Ignore editor settings folders
 .vscode/
+.venv
+src/local_models/
 
 # Ignore pychache directories
 src/__pycache__/

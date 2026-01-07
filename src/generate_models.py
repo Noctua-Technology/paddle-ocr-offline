@@ -42,7 +42,7 @@ MODEL_MAP = {
     ),
 }
 
-DEST_DIR = "/app/src/local_models"
+DEST_DIR = "./src/local_models"
 
 
 def download_and_extract(name, model_name, url):

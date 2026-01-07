@@ -1,6 +1,9 @@
 FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim AS builder
 
-ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0 DISABLE_MODEL_SOURCE_CHECK=True
+ENV UV_COMPILE_BYTECODE=1 
+ENV UV_LINK_MODE=copy 
+ENV UV_PYTHON_DOWNLOADS=0 
+ENV DISABLE_MODEL_SOURCE_CHECK=True
 
 WORKDIR /app
 
@@ -10,11 +13,10 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml uv.lock ./
+COPY . .
+
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-install-project --no-dev
-
-COPY . /app
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv run src/generate_models.py
@@ -38,9 +40,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-RUN mkdir -p /app/output && chown -R app:app /app
 
-COPY --from=builder --chown=app:app /app /app
+COPY --from=builder --chown=app:app /app .
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/src"

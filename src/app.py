@@ -1,7 +1,13 @@
 import os
+import cv2
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from typing import Literal
 from main import ocr_service
+import numpy as np
+from PIL import Image
+from io import BytesIO
+
+
 
 app = FastAPI(title="Paddle OCR")
 
@@ -30,18 +36,12 @@ async def predict_text(
     file: UploadFile = File(...),
     lang: SupportedLangs = Query("en")
 ):
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="File must be an image")
-
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    temp_file_path = os.path.join(base_dir, f"temp_{file.filename}")
-
     try:
-        content = await file.read()
-        with open(temp_file_path, "wb") as f:
-            f.write(content)
+        image_bytes = await file.read()
+        image = Image.open(BytesIO(image_bytes))
+        img_array = np.array(image)
 
-        ocr_result = ocr_service.run_ocr(temp_file_path, lang=lang)
+        ocr_result = ocr_service.run_ocr(img_array, lang=lang)
 
         return {
             "filename": file.filename,
@@ -53,8 +53,5 @@ async def predict_text(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"OCR Error: {str(e)}")
     
-    finally:
-        if os.path.exists(temp_file_path):
-            os.remove(temp_file_path)
 
 
