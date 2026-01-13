@@ -51,4 +51,4 @@ ENV DISABLE_MODEL_SOURCE_CHECK=True
 
 USER app
 
-CMD ["fastapi", "run", "src/app.py", "--port", "80"]
+CMD ["fastapi", "run", "src/app.py", "--port", "3333"]
