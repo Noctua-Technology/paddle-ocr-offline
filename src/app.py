@@ -38,14 +38,13 @@ async def predict_text(
     lang: SupportedLangs = Query("en")
 ):
     try:
-        file_bytes = await file.read()
-
         # Check if it's a PDF
         is_pdf = (file.content_type == "application/pdf") or \
                  (file.filename.lower().endswith(".pdf"))
 
         if is_pdf:
             # Convert PDF bytes to a list of PDF Images (one per page)
+            file_bytes = await file.read()
             try:
                 images = convert_from_bytes(file_bytes)
             except Exception as e:
