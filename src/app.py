@@ -1,8 +1,6 @@
-import os
-import cv2
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from typing import Literal
-from main import ocr_service
+from .main import ocr_service
 import numpy as np
 from PIL import Image
 from io import BytesIO
@@ -39,6 +37,8 @@ async def predict_text(
     try:
         image_bytes = await file.read()
         image = Image.open(BytesIO(image_bytes))
+        if image.mode != "RGB":
+            image = image.convert("RGB")
         img_array = np.array(image)
 
         return ocr_service.run_ocr(img_array, lang=lang)
