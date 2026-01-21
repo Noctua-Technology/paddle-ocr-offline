@@ -1,14 +1,13 @@
 import os
+import shutil
+import tempfile
 import cv2
+import numpy as np
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from typing import Literal
-from .main import ocr_service
-import numpy as np
 from PIL import Image
 from io import BytesIO
-from pdf2image import convert_from_bytes
-
-
+from .main import ocr_service
 
 app = FastAPI(title="Paddle OCR")
 
@@ -38,22 +37,19 @@ async def predict_text(
     lang: SupportedLangs = Query("en")
 ):
     try:
-        is_pdf = (file.content_type == "application/pdf") or \
-                 (file.filename.lower().endswith(".pdf"))
+        file_bytes = await file.read()
+        
+        content_type = file.content_type
+        # checks if the file has no content type
+        if not content_type or content_type == "application/octet-stream":
+            if file.filename.lower().endswith(".pdf"):
+                content_type = "application/pdf"
+            elif file.filename.lower().endswith((".jpg", ".jpeg")):
+                content_type = "image/jpeg"
+            else:
+                content_type = "image/png"
 
-        if is_pdf:
-            file_bytes = await file.read()
-            return ocr_service.run_ocr(file_bytes, lang=lang)
+        return ocr_service.run_ocr(file_bytes, content_type=content_type, lang=lang)
 
-        else:
-            image_bytes = await file.read()
-            image = Image.open(BytesIO(image_bytes))
-            if image.mode != "RGB":
-                image = image.convert("RGB")
-            img_array = np.array(image)
-            return ocr_service.run_ocr(img_array, lang=lang)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"OCR Error: {str(e)}")
-    
-
-

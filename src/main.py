@@ -1,4 +1,8 @@
 import os
+import tempfile
+import numpy as np
+from PIL import Image
+from io import BytesIO
 from paddleocr import PaddleOCR
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -62,6 +66,7 @@ class PaddleOCRService:
             paddle_code = self.paddle_lang_map.get(lang, "en")
             rec_model = self.model_registry.get(lang, "en_PP-OCRv5_mobile_rec")
 
+            # Note: Assuming this initializes a PaddleX pipeline that supports .predict()
             self.models[lang] = PaddleOCR(
                 det_model_dir=f"{self.models_base}/{self.det_model}",
                 rec_model_dir=f"{self.models_base}/{rec_model}",
@@ -73,27 +78,51 @@ class PaddleOCRService:
             
         return self.models[lang]
 
-    def run_ocr(self, file, lang: str = "en"):
-        """Executes OCR and returns structured JSON-ready data"""
-        ocr_engine = self._get_or_load_model(lang)
-        result = ocr_engine.predict(input=file)
+    def run_ocr(self, file_bytes: bytes, content_type: str, lang: str = "en"):
+        ocr = self._get_or_load_model(lang)
+        temp_pdf_path = None
+        input_data = None
 
-        all_text = []
-        text_boxes = []
+        try:
+            # if pdf, save to a temp file so it can be read by PaddleOCR
+            if "pdf" in content_type.lower():
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
+                    f.write(file_bytes)
+                    temp_pdf_path = f.name
+                input_data = temp_pdf_path
+            else:
+                img = Image.open(BytesIO(file_bytes)).convert("RGB")
+                input_data = np.array(img)
 
-        for res in result:
-            texts = res.get("rec_texts", [])
-            boxes = res.get("dt_polys", [])
+            results = ocr.predict(input=input_data)
+            
+            # normalize results to a list (Image input returns object, PDF input returns list)
+            if not isinstance(results, list):
+                results = [results]
 
-            print(res)
+            text_boxes = []
+            all_text_lines = []
 
-            for text, box in zip(texts, boxes):
-                all_text.append(text)
+            for page_idx, page_result in enumerate(results):
+                texts = page_result.get("rec_texts", [])
+                boxes = page_result.get("dt_polys", [])
 
-                clean_box = box.tolist() if hasattr(box, "tolist") else box
+                for text, box in zip(texts, boxes):
+                    all_text_lines.append(text)
+                    text_boxes.append({
+                        "text": text,
+                        "box": box.tolist() if hasattr(box, "tolist") else box,
+                        "page": page_idx + 1
+                    })
 
-                text_boxes.append({"text": text, "box": clean_box })
+            return {
+                "full_text": " ".join(all_text_lines), 
+                "text_boxes": text_boxes
+            }
 
-        return {"full_text": " ".join(all_text), "text_boxes": text_boxes}
+        finally:
+            # REQUIRED TO CLEAN UP TEMP FILES
+            if temp_pdf_path and os.path.exists(temp_pdf_path):
+                os.remove(temp_pdf_path)
 
 ocr_service = PaddleOCRService()
