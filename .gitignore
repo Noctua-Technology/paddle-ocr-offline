@@ -2,6 +2,7 @@
 .vscode/
 .venv
 src/local_models/
+src/src/local_models/
 
 # Ignore pychache directories
 src/__pycache__/
