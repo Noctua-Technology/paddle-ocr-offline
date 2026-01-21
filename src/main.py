@@ -89,39 +89,34 @@ class PaddleOCRService:
             "image/png": ".png",
         }
         ext = common_types.get(content_type)
-        try:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as f:
-                f.write(file_bytes)
-                temp_pdf_path = f.name
-                input_data = temp_pdf_path
-                results = ocr.predict(input=input_data)
-                
-            # normalize results to a list (Image input returns object, PDF input returns list)
-            if not isinstance(results, list):
-                results = [results]
+        with tempfile.NamedTemporaryFile(delete=True, suffix=ext) as f:
+            f.write(file_bytes)
+            temp_pdf_path = f.name
+            input_data = temp_pdf_path
+            results = ocr.predict(input=input_data)
+            
+        # normalize results to a list (Image input returns object, PDF input returns list)
+        if not isinstance(results, list):
+            results = [results]
 
-            text_boxes = []
-            all_text_lines = []
+        text_boxes = []
+        all_text_lines = []
 
-            for page_idx, page_result in enumerate(results):
-                texts = page_result.get("rec_texts", [])
-                boxes = page_result.get("dt_polys", [])
+        for page_idx, page_result in enumerate(results):
+            texts = page_result.get("rec_texts", [])
+            boxes = page_result.get("dt_polys", [])
 
-                for text, box in zip(texts, boxes):
-                    all_text_lines.append(text)
-                    text_boxes.append({
-                        "text": text,
-                        "box": box.tolist() if hasattr(box, "tolist") else box,
-                        "page": page_idx + 1
-                    })
+            for text, box in zip(texts, boxes):
+                all_text_lines.append(text)
+                text_boxes.append({
+                    "text": text,
+                    "box": box.tolist() if hasattr(box, "tolist") else box,
+                    "page": page_idx + 1
+                })
 
-            return {
-                "full_text": " ".join(all_text_lines), 
-                "text_boxes": text_boxes
-            }
-        finally:
-            # REQUIRED TO CLEAN UP TEMP FILES
-            if temp_pdf_path and os.path.exists(temp_pdf_path):
-                os.remove(temp_pdf_path)
+        return {
+            "full_text": " ".join(all_text_lines), 
+            "text_boxes": text_boxes
+        }
 
 ocr_service = PaddleOCRService()
