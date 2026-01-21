@@ -1,15 +1,10 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from typing import Literal
 from .main import ocr_service
-import numpy as np
-from PIL import Image
-from io import BytesIO
-
-
 
 app = FastAPI(title="Paddle OCR")
 
-SupportedLangs = Literal["ar", "en", "fr", "de", "ko", "zh", "ja", "es", "hi"]
+SupportedLangs = Literal["ar", "en", "fa", "fr", "de", "hi", "id", "ja", "ko", "zh", "pt", "ru", "es", "ur", "vi"]
 
 @app.get("/")
 async def root():
@@ -24,7 +19,7 @@ def health_check():
         return {
             "status": "ready",
             "models_loaded": list(ocr_service.models.keys()),
-            "message": "OCR engine is readu"
+            "message": "OCR engine is ready"
         }
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"OCR not ready: {str(e)}")
@@ -35,16 +30,19 @@ async def predict_text(
     lang: SupportedLangs = Query("en")
 ):
     try:
-        image_bytes = await file.read()
-        image = Image.open(BytesIO(image_bytes))
-        if image.mode != "RGB":
-            image = image.convert("RGB")
-        img_array = np.array(image)
+        file_bytes = await file.read()
+        
+        content_type = file.content_type
+        # checks if the file has no content type
+        if not content_type or content_type == "application/octet-stream":
+            if file.filename.lower().endswith(".pdf"):
+                content_type = "application/pdf"
+            elif file.filename.lower().endswith((".jpg", ".jpeg")):
+                content_type = "image/jpeg"
+            else:
+                content_type = "image/png"
 
-        return ocr_service.run_ocr(img_array, lang=lang)
+        return ocr_service.run_ocr(file_bytes, content_type=content_type, lang=lang)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"OCR Error: {str(e)}")
-    
-
-
