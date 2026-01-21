@@ -82,20 +82,20 @@ class PaddleOCRService:
         ocr = self._get_or_load_model(lang)
         temp_pdf_path = None
         input_data = None
-
+        common_types = {
+            "application/pdf": ".pdf",
+            "image/jpeg": ".jpg",
+            "image/jpg": ".jpg",
+            "image/png": ".png",
+        }
+        ext = common_types.get(content_type)
         try:
-            # if pdf, save to a temp file so it can be read by PaddleOCR
-            if "pdf" in content_type.lower():
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
-                    f.write(file_bytes)
-                    temp_pdf_path = f.name
+            with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as f:
+                f.write(file_bytes)
+                temp_pdf_path = f.name
                 input_data = temp_pdf_path
-            else:
-                img = Image.open(BytesIO(file_bytes)).convert("RGB")
-                input_data = np.array(img)
-
-            results = ocr.predict(input=input_data)
-            
+                results = ocr.predict(input=input_data)
+                
             # normalize results to a list (Image input returns object, PDF input returns list)
             if not isinstance(results, list):
                 results = [results]
@@ -119,7 +119,6 @@ class PaddleOCRService:
                 "full_text": " ".join(all_text_lines), 
                 "text_boxes": text_boxes
             }
-
         finally:
             # REQUIRED TO CLEAN UP TEMP FILES
             if temp_pdf_path and os.path.exists(temp_pdf_path):

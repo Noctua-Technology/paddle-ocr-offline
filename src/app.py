@@ -1,12 +1,5 @@
-import os
-import shutil
-import tempfile
-import cv2
-import numpy as np
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from typing import Literal
-from PIL import Image
-from io import BytesIO
 from .main import ocr_service
 
 app = FastAPI(title="Paddle OCR")
