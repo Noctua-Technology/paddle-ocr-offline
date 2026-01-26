@@ -12,14 +12,15 @@ MODEL_MAP = {
         "PP-OCRv5_server_det",
         f"{BASE_V5}/PP-OCRv5_server_det_infer.tar",
     ),
-    "English": (
-        "en_PP-OCRv5_mobile_rec",
-        f"{BASE_V5}/en_PP-OCRv5_mobile_rec_infer.tar",
-    ),
-    "Arabic": (
-        "arabic_PP-OCRv5_mobile_rec",
-        f"{BASE_V5}/arabic_PP-OCRv5_mobile_rec_infer.tar",
-    ),
+    # English and Arabic models are local, not downloaded
+    # "English": (
+    #     "en_PP-OCRv5_mobile_rec",
+    #     f"{BASE_V5}/en_PP-OCRv5_mobile_rec_infer.tar",
+    # ),
+    # "Arabic": (
+    #     "arabic_PP-OCRv5_mobile_rec",
+    #     f"{BASE_V5}/arabic_PP-OCRv5_mobile_rec_infer.tar",
+    # ),
     "Korean": (
         "korean_PP-OCRv5_mobile_rec",
         f"{BASE_V5}/korean_PP-OCRv5_mobile_rec_infer.tar",

@@ -64,12 +64,22 @@ class PaddleOCRService:
         """Loads the model into memory with path validation."""
         if lang not in self.models:
             paddle_code = self.paddle_lang_map.get(lang, "en")
-            rec_model = self.model_registry.get(lang, "en_PP-OCRv5_mobile_rec")
+            
+            # Use ocr_models for English and Arabic, local_models for others
+            if lang == "en":
+                rec_model_dir = "./src/ocr_models/en"
+                det_model_dir = f"{self.models_base}/{self.det_model}"
+            elif lang == "ar":
+                rec_model_dir = "./src/ocr_models/arabic"
+                det_model_dir = f"{self.models_base}/{self.det_model}"
+            else:
+                rec_model = self.model_registry.get(lang, "en_PP-OCRv5_mobile_rec")
+                rec_model_dir = f"{self.models_base}/{rec_model}"
+                det_model_dir = f"{self.models_base}/{self.det_model}"
 
-            # Note: Assuming this initializes a PaddleX pipeline that supports .predict()
             self.models[lang] = PaddleOCR(
-                det_model_dir=f"{self.models_base}/{self.det_model}",
-                rec_model_dir=f"{self.models_base}/{rec_model}",
+                det_model_dir=det_model_dir,
+                rec_model_dir=rec_model_dir,
                 use_doc_orientation_classify=False,
                 use_doc_unwarping=False,
                 use_textline_orientation=False,
