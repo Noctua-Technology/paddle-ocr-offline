@@ -5,6 +5,7 @@ import logging
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import httpx
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from paddleocr import PaddleOCRVL
 
@@ -73,7 +74,14 @@ else:
     logger.info("PaddleOCR initialized with local backend model_dir=./models/PaddleOCR-VL-1.5")
 
 @app.get("/health")
-def health() -> dict[str, str]:
+async def health() -> dict[str, str]:
+    if use_vllm:
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                resp = await client.get(f"{vllm_server_url}/models")
+                resp.raise_for_status()
+        except Exception:
+            raise HTTPException(status_code=503, detail="vLLM not ready")
     return {"status": "ok"}
 
 
